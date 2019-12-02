@@ -6,7 +6,7 @@
 ##########################################
 
 import sys
-
+import os
 
 def check_input_args(args):
     """
@@ -14,24 +14,17 @@ def check_input_args(args):
     :param args: the files
     :return: none if everything is legal, a message if not
     """
+
     # Checking if there are four parameters as requested
     if len(args) != 4:
         message = 'The Number of Parameters is not suitable'
         return message
-    # Checking if the word file exists
-    try:
-        f = open(args[0])
-        f.close()
-    except IOError:
+
+    if not os.path.isfile(args[0]):
         message = "Word file does not exist"
         return message
 
-
-    # Checking if the matrix file exists
-    try:
-        f = open(args[1])
-        f.close()
-    except IOError:
+    if not os.path.isfile(args[1]):
         message = "Matrix file does not exist"
         return message
 
@@ -42,7 +35,6 @@ def check_input_args(args):
             message = "The directions are illegal"
             return message
     return
-
 
 def read_wordlist_file(filename):  # OKAYYYYYYYYYYYYYYY
     """
