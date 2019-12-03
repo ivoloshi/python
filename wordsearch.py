@@ -362,7 +362,11 @@ def find_words_in_matrix(word_list, matrix, directions):
             words_dict[word] += count
         else:
             words_dict[word] = count
-        res_words_list.append((word, count))
+
+    for w in words_dict.keys():
+        if words_dict[w] != 0:
+            res_words_list.append((w, words_dict[w]))
+
     return res_words_list
 
 
