@@ -6,7 +6,9 @@
 ##########################################
 
 import sys
+import traceback
 import os
+
 
 def check_input_args(args):
     """
@@ -35,6 +37,7 @@ def check_input_args(args):
             message = "The directions are illegal"
             return message
     return
+
 
 def read_wordlist_file(filename):  # OKAYYYYYYYYYYYYYYY
     """
@@ -140,7 +143,21 @@ def down_direction_search_word(word, matrix):
         line_list = []
         for row in range(len(matrix)):
             line_list.append(matrix[row][col])
-        line = ''.join(line_list)
+        counter = update_counter(counter, line_list, word)
+    return counter
+
+
+def update_counter(counter, line_list, word):
+    """
+        updates counter for the occurrences of the word
+        :param counter: the searched word
+        :param line_list: the char matrix that is searches in
+        :param word:word to search
+        :return: counter
+        """
+    line = ''.join(line_list)
+
+    if len(line) > 0:
         counter += count_occurrences_in_string(line, word)
     return counter
 
@@ -157,148 +174,164 @@ def up_direction_search_word(word, matrix):
         line_list = []
         for row in range(len(matrix) - 1, -1, -1):
             line_list.append(matrix[row][col])
-        line = ''.join(line_list)
-        counter += count_occurrences_in_string(line, word)
+        counter = update_counter(counter, line_list, word)
+
     return counter
 
 
 def diag_up_right_direction_search_word(word, matrix):
+    """
+        searches for the occurrences of the word in the "up_right" direction only
+        :param word: the searched word
+        :param matrix: the char matrix that is searches in
+        :return: number of occurrences in the up direction
+        """
     counter = 0
-    row = 0
-    col = 0
-
-    for i in range(len(matrix)):
+    for k in range(len(matrix)):
         col = 0
         line_list = []
-        row = i
-        #  print(f'i = {i}')
-        while (row + col) == i and row >= 0 and col < len(matrix[0]):
-            #  print(f'row = {row} col = {col}')
-            line_list.append(matrix[row][col])
-            row -= 1
-            col += 1
-        line = ''.join(line_list)
-        #  print(f'line = {line}')
-        counter += count_occurrences_in_string(line, word)
+        row = k
 
-    for i in range(1, len(matrix[0])):
-        col = i
-        row = len(matrix) - 1
-        s = col + row
-        line_list = []
-        while (row + col) == s and row >= 0 and col < len(matrix[0]):
+        while row >= 0 and col < len(matrix[0]):
+            #   print(f'row = {row} col = {col}')
             line_list.append(matrix[row][col])
             row -= 1
             col += 1
+        counter = set_counter(counter, line_list, word)
+
+    for k in range(1, len(matrix)):
+
+        line_list = []
+        row = len(matrix) - 1
+        col = k
+        #  print(f'i = {i}')
+        while col < len(matrix[0]):
+            # print(f'Row = {row} col = {col}')
+            line_list.append(matrix[row][col])
+            row -= 1
+            col += 1
+        counter = set_counter(counter, line_list, word)
+
+    return counter
+
+
+def set_counter(counter, line_list, word):
+    if len(line_list) > 0:
         line = ''.join(line_list)
-        # print(f'line = {line}')
+        #   print(f'line = {line}')
         counter += count_occurrences_in_string(line, word)
     return counter
 
 
 def diag_down_left_direction_search_word(word, matrix):
+    """
+    searches for the occurrences of the word in the "up_right" direction only
+    :param word: the searched word
+     :param matrix: the char matrix that is searches in
+    :return: number of occurrences in the up direction
+     """
     counter = 0
     row = 0
     col = 0
 
-    for i in range(len(matrix)):
+    for k in range(len(matrix)):
         col = 0
         line_list = []
-        row = i
-        while (row + col) == i and row >= 0 and col < len(matrix[0]):
+        row = k
+        #  print(f'i = {i}')
+        while row >= 0 and col < len(matrix[0]):
+            #   print(f'row = {row} col = {col}')
             line_list.append(matrix[row][col])
             row -= 1
             col += 1
-        line = ''.join(line_list)
-        reverse_line = line[::-1]
-        counter += count_occurrences_in_string(reverse_line, word)
+        counter = update_counter_with_reverse_line(counter, line_list, word)
 
-    for i in range(1, len(matrix[0])):
-        col = i
-        row = len(matrix) - 1
-        s = col + row
+    for k in range(1, len(matrix)):
         line_list = []
-        while (row + col) == s and row >= 0 and col < len(matrix[0]):
+        row = len(matrix) - 1
+        col = k
+
+        while col < len(matrix[0]):
+            #   print(f'Row = {row} col = {col}')
             line_list.append(matrix[row][col])
             row -= 1
             col += 1
-        line = ''.join(line_list)
-        reverse_line = line[::-1]
-        counter += count_occurrences_in_string(reverse_line, word)
+        counter = update_counter_with_reverse_line(counter, line_list, word)
     return counter
 
 
-def diag_up_left_direction_search_word(word, matrix):
-    counter = 0
-    row = len(matrix)
-    col = 0
-
-    for i in range(len(matrix[0])):
-        line_list = []
-        row = len(matrix) - 1
-        col = i
-        while row >= 0 and col >= 0:
-            line_list.append(matrix[row][col])
-            row -= 1
-            col -= 1
+def update_counter_with_reverse_line(counter, line_list, word):
+    if len(line_list) > 0:
         line = ''.join(line_list)
-        counter += count_occurrences_in_string(line, word)
-
-    for i in range(len(matrix[0]) - 1, -1, -1):
-        line_list = []
-        row = i
-        col = len(matrix[0]) - 1
-        while is_valid_index(col, row, matrix):
-            line_list.append(matrix[row][col])
-            row -= 1
-            col -= 1
-        line = ''.join(line_list)
-        counter += count_occurrences_in_string(line, word)
-
+        reverse_line = line[::-1]
+        # print(f'line = {reverse_line}')
+        counter += count_occurrences_in_string(reverse_line, word)
     return counter
 
 
 def diag_down_right_direction_search_word(word, matrix):
     counter = 0
-    row = len(matrix)
-    col = 0
+    for i in range(len(matrix)):
 
-    for i in range(len(matrix[0])):
         line_list = []
-        row = len(matrix) - 1
-        col = i
+        for j in range(0, len(matrix) - i):
+            if len(matrix[i + j]) <= j:
+                break
+            line_list += matrix[i + j][j]
+        if len(line_list) > 0:
+            line = ''.join(line_list)
+            counter += count_occurrences_in_string(line, word)
+            line_list = []
 
-        while is_valid_index(col, row, matrix):
-            line_list.append(matrix[row][col])
-            row -= 1
-            col -= 1
-        line = ''.join(line_list)
-        reverse_line = line[::-1]
-        counter += count_occurrences_in_string(reverse_line, word)
+    for i in range(1, len(matrix[0])):
 
-    for i in range(len(matrix[0]) - 1, -1, -1):
-        line_list = []
-        row = i
-        col = len(matrix[0]) - 1
-        while is_valid_index(col, row, matrix):
-            line_list.append(matrix[row][col])
-            row -= 1
-            col -= 1
-        line = ''.join(line_list)
-        reverse_line = line[::-1]
-        counter += count_occurrences_in_string(reverse_line, word)
-
+        for j in range(0, len(matrix[0]) - i):
+            if len(matrix[0]) < i + j or j >= len(matrix):
+                break
+            line_list += matrix[j][i + j]
+        if len(line_list):
+            line = ''.join(line_list)
+            counter += count_occurrences_in_string(line, word)
+            line_list = []
+            # print(line)
     return counter
 
 
-def is_valid_index(col, row, matrix):
-    return row >= 0 and col >= 0 and row < len(matrix) and col < len(matrix[0])
+def diag_up_left_direction_search_word(word, matrix):  # ok
+    counter = 0
+    for i in range(len(matrix)):
+
+        line_list = []
+        for j in range(0, len(matrix) - i):
+            if len(matrix[i + j]) <= j:
+                break
+            line_list += matrix[i + j][j]
+        if len(line_list) > 0:
+            line = ''.join(line_list)
+            reverse_line = line[::-1]
+            counter += count_occurrences_in_string(reverse_line, word)
+            line_list = []
+
+    for i in range(1, len(matrix[0])):
+
+        for j in range(0, len(matrix[0]) - i):
+            if len(matrix[0]) < i + j or j >= len(matrix):
+                break
+            line_list += matrix[j][i + j]
+        if len(line_list):
+            line = ''.join(line_list)
+            reverse_line = line[::-1]
+            counter += count_occurrences_in_string(reverse_line, word)
+
+            line_list = []
+            # print(line)
+    return counter
 
 
 def simplify_directions(directions):
     final_directions = set()
-    for char in directions:
-        final_directions.add(char)
+    for i in range(len(directions)):
+        final_directions.add(directions[i])
     return final_directions
 
 
@@ -325,9 +358,11 @@ def find_words_in_matrix(word_list, matrix, directions):
                 count += diag_down_right_direction_search_word(word, matrix)
             elif direction == 'z':
                 count += diag_down_left_direction_search_word(word, matrix)
-        if count > 0:
-            words_dict.update({word: count})
-            res_words_list.append((word, count))
+        if word in words_dict:
+            words_dict[word] += count
+        else:
+            words_dict[word] = count
+        res_words_list.append((word, count))
     return res_words_list
 
 
@@ -353,14 +388,13 @@ def main(word_file, matrix_file, output_file, directions):
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
 
-'''
-wordi = 'app'
-matrixi = read_matrix_file("mat.txt")
-print(diag_down_right_direction_search_word(wordi, matrixi))
-print(diag_down_left_direction_search_word(wordi, matrixi))
-print(diag_up_left_direction_search_word(wordi, matrixi))
-print(diag_up_right_direction_search_word(wordi, matrixi))
-print(left_direction_search_word(wordi, matrixi))
-print(right_direction_search_word(wordi, matrixi))
-print(up_direction_search_word(wordi, matrixi))
-print(down_direction_search_word(wordi, matrixi)) '''
+    # wordi = 'cat'
+    # matrixi = read_matrix_file("mat.txt")
+    # diag_down_right_direction_search_word(wordi, matrixi)
+# print(diag_down_left_direction_search_word(wordi, matrixi))
+# print(diag_up_left_direction_search_word(wordi, matrixi))
+# print(diag_up_right_direction_search_word(wordi, matrixi))
+# print(left_direction_search_word(wordi, matrixi))
+# print(right_direction_search_word(wordi, matrixi))
+# print(up_direction_search_word(wordi, matrixi))
+# print(down_direction_search_word(wordi, matrixi))
